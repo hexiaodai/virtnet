@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package v1alpha1.coordinator;
+
+option go_package = "v1alpha1/coordinator";
+
+import "protovendor/validate/validate.proto";
+
+service Coordinator {
+  rpc GetCoordinatorConfig (GetCoordinatorConfigRequest) returns (GetCoordinatorConfigReply) {}
+}
+
+message GetCoordinatorConfigRequest {
+	// pod name
+    string PodName = 1 [(validate.rules).string = {min_len: 1}];
+	// pod namespace
+    string PodNamespace = 2 [(validate.rules).string = {min_len: 1}];
+}
+
+message GetCoordinatorConfigReply {
+	// service CIDR
+    repeated string ServiceCIDR = 1;
+}

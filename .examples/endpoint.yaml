@@ -1,0 +1,16 @@
+apiVersion: virtnest.io/v1alpha1
+kind: Endpoint
+metadata:
+  name: test
+  namespace: default
+status:
+  current:
+    ips:
+      - interface: eth0
+        ipv4: 10.6.153.7/16
+        ipv4Gateway: 10.6.0.1
+        ipv4Pool: 10-6-v4
+    uid: a50b4358-7b2e-4a0a-a548-fe30522629f6
+    node: centos7
+  ownerControllerName: test1
+  ownerControllerType: ReplicaSet

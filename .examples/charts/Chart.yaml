@@ -1,0 +1,6 @@
+apiVersion: v2
+name: chart-virtnest
+description: A Helm chart for VirtNest
+type: application
+version: 0.0.0
+appVersion: 0.0.0

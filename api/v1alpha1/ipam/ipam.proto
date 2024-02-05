@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package v1alpha1.ipam;
+
+option go_package = "v1alpha1/ipam";
+
+import "protovendor/validate/validate.proto";
+
+service Ipam {
+  rpc Allocate (AllocateRequest) returns (AllocateReply) {}
+  rpc Release (ReleaseRequest) returns (ReleaseReply) {}
+}
+
+message AllocateRequest {
+	// container ID
+  string ContainerID = 1 [(validate.rules).string = {min_len: 1}];
+
+	// if name
+  string IfName = 2 [(validate.rules).string = {min_len: 1}];
+
+	// net namespace
+	string NetNamespace = 3 [(validate.rules).string = {min_len: 1}];
+
+  // default ip pools
+  // repeated string DefaultIPPools = 4;
+
+  // default ip subnet
+  string DefaultSubnet = 4 [(validate.rules).string = {min_len: 1}];
+
+	// pod name
+  string PodName = 5 [(validate.rules).string = {min_len: 1}];
+
+	// pod namespace
+  string PodNamespace = 6 [(validate.rules).string = {min_len: 1}];
+
+	// pod UID
+  string PodUID = 7 [(validate.rules).string = {min_len: 1}];
+}
+
+message AllocateReply {
+	// ips
+  repeated IPConfig IPs = 1;
+
+  // routes
+	repeated Route Routes = 2;
+
+  // DNS
+  DNS DNS = 3;
+}
+
+message IPConfig {
+	// address
+  string Address = 1;
+  // string Address = 1 [(validate.rules).string = {min_len: 1}];
+
+  // nic
+  string Nic = 2;
+  // string Nic = 2 [(validate.rules).string = {min_len: 1}];
+
+  // version
+  EnumIPVersion version = 3;
+}
+
+message Route {
+	// dst
+	string Dst = 1;
+
+	// gw
+	string Gw = 2;
+
+	// if name
+	string IfName = 3;
+}
+
+message DNS {
+  // domain
+  string Domain = 1;
+
+  // nameservers
+  repeated string Nameservers = 2;
+
+  // options
+  repeated string Options = 3;
+
+  // search
+  repeated string Search = 4;
+}
+
+enum EnumIPVersion {
+  IPv4 = 0;
+  IPv6 = 1;
+}
+
+message ReleaseRequest {
+	// container ID
+  string ContainerID = 1 [(validate.rules).string = {min_len: 1}];
+
+	// if name
+  string IfName = 2 [(validate.rules).string = {min_len: 1}];
+
+	// net namespace
+  string NetNamespace = 3;
+
+	// pod name
+  string PodName = 4 [(validate.rules).string = {min_len: 1}];
+
+	// pod namespace
+  string PodNamespace = 5 [(validate.rules).string = {min_len: 1}];
+
+	// pod UID
+  string PodUID = 6 [(validate.rules).string = {min_len: 1}];
+}
+
+message ReleaseReply {}

@@ -1,0 +1,7 @@
+2024-01-29T12:38:29.217+0800	DEBUG	main	coordinator/main.go:24	Debug message	{"netConf": {"type":"virtnest-coordinator","ipam":{},"dns":{}}}
+2024-01-29T12:39:01.030+0800	DEBUG	main	coordinator/main.go:24	Debug message	{"netConf": {"type":"virtnest-coordinator","ipam":{},"dns":{}}}
+2024-01-29T12:39:06.887+0800	DEBUG	main	coordinator/main.go:24	Debug message	{"netConf": {"type":"virtnest-coordinator","ipam":{},"dns":{}}}
+2024-01-29T12:39:07.780+0800	DEBUG	main	coordinator/main.go:24	Debug message	{"netConf": {"type":"virtnest-coordinator","ipam":{},"dns":{}}}
+2024-01-29T13:32:52.617+0800	DEBUG	main	coordinator/main.go:25	Debug message	{"netConf": {"type":"virtnest-coordinator","ipam":{},"dns":{}}, "args": ["/var/folders/h8/zf4bkr1s7hx55tfw2bn6vvpr0000gn/T/go-build1026281429/b001/exe/main"]}
+2024-01-29T13:33:14.806+0800	DEBUG	main	coordinator/main.go:25	Debug message	{"netConf": {"type":"virtnest-coordinator","ipam":{},"dns":{}}, "args": ["/var/folders/h8/zf4bkr1s7hx55tfw2bn6vvpr0000gn/T/go-build1291315592/b001/exe/main", "asdsa=dsad", "das=dasd123"]}
+{"level":"DEBUG","ts":"2024-01-29T13:34:35.247+0800","logger":"main","caller":"coordinator/main.go:25","msg":"Debug message","netConf":{"type":"virtnest-coordinator","ipam":{},"dns":{}},"args":["/var/folders/h8/zf4bkr1s7hx55tfw2bn6vvpr0000gn/T/go-build774740327/b001/exe/main","asdsa=dsad","das=dasd123"]}

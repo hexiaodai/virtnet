@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: virtnest-agent
+  namespace: {{ .Release.Namespace }}
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: virtnest-agent
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: virtnest-agent
+spec:
+  selector:
+    matchLabels:
+      app: virtnest-agent
+  template:
+    metadata:
+      labels:
+        app: virtnest-agent
+    spec:
+      hostNetwork: true
+      initContainers:
+      - name: install-plugins
+        image: {{ .Values.deployment.plugins.image.repository }}:{{ .Chart.AppVersion }}
+        command:
+          - /bin/sh
+          - entrypoint.sh
+        # command:
+        #   - "/bin/sh"
+        #   - "-c"
+        #   - |
+        #     ITEM="virtnest-ipam"
+        #     rm -f /host/opt/cni/bin/${ITEM}.old || true
+        #     ( [ -f "/host/opt/cni/bin/${ITEM}" ] && mv /host/opt/cni/bin/${ITEM} /host/opt/cni/bin/${ITEM}.old ) || true
+        #     cp /usr/plugins/${ITEM} /host/opt/cni/bin/${ITEM}
+        #     rm -f /host/opt/cni/bin/${ITEM}.old &>/dev/null
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: cni-bin-path
+          mountPath: /host/opt/cni/bin
+      # - name: multus-cni
+      #   imagePullPolicy: IfNotPresent
+      #   image: ghcr.m.daocloud.io/k8snetworkplumbingwg/multus-cni:v3.9.3
+      #   command:
+      #     - "/bin/sh"
+      #     - "-c"
+      #     - |
+      #       ITEM="multus"
+      #       rm -f /host/opt/cni/bin/${ITEM}.old || true
+      #       ( [ -f "/host/opt/cni/bin/${ITEM}" ] && mv /host/opt/cni/bin/${ITEM} /host/opt/cni/bin/${ITEM}.old ) || true
+      #       cp /usr/src/multus-cni/bin/${ITEM} /host/opt/cni/bin/${ITEM}
+      #       rm -f /host/opt/cni/bin/${ITEM}.old &>/dev/null  || true
+      #       sed -i 's/sleep infinity/echo \"exit...\"/g'  entrypoint.sh
+      #       ./entrypoint.sh --multus-conf-file=/tmp/multus-conf/00-multus.conf \
+      #         --cni-version=0.3.1
+      #   securityContext:
+      #     privileged: true
+      #   volumeMounts:
+      #     - name: cni
+      #       mountPath: /host/etc/cni/net.d
+      #     - name: cni-bin-path
+      #       mountPath: /host/opt/cni/bin
+      #       mountPropagation: Bidirectional
+      #     - name: multus-cfg
+      #       mountPath: /tmp/multus-conf
+      containers:
+      - name: virtnest-agent
+        image: {{ .Values.deployment.agent.image.repository }}:{{ .Chart.AppVersion }}
+        imagePullPolicy: IfNotPresent
+        resources:
+        {{- toYaml .Values.deployment.agent.resources | nindent 10 }}
+        volumeMounts:
+        - name: ipam-unix-socket-dir
+          mountPath: {{ dir "/var/run/virtnet/virtnest.sock" }}
+      serviceAccountName: virtnest-agent
+      volumes:
+      - name: cni-bin-path
+        hostPath:
+          path: /opt/cni/bin
+          type: DirectoryOrCreate
+      - name: ipam-unix-socket-dir
+        hostPath:
+          path: {{ dir "/var/run/virtnet/virtnest.sock" }}
+          type: DirectoryOrCreate
+      # - name: cni
+      #   hostPath:
+      #     path: /etc/cni/net.d
+      # - name: multus-cfg
+      #   configMap:
+      #     name: virtnest-multus
+      #     items:
+      #     - key: cni-conf.json
+      #       path: 00-multus.conf

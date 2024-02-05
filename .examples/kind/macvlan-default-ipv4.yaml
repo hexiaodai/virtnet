@@ -1,0 +1,10 @@
+apiVersion: virtnet.io/v1alpha1
+kind: IPPool
+metadata:
+  name: macvlan-default-ipv4
+spec:
+  replicas: 1
+  gateway: 172.18.0.1
+  ips:
+    - 172.18.10.0-172.18.10.255
+  subnet: 172.18.0.0/16

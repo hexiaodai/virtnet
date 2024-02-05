@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sample-ss
+  labels:
+    app: sample-ss
+spec:
+  serviceName: sample-ss
+  replicas: 10
+  selector:
+    matchLabels:
+      app: sample-ss
+  template:
+    metadata:
+      labels:
+        app: sample-ss
+    spec:
+      containers:
+        - name: sample-ss
+          command: ["sleep", "99999"]
+          image: alpine
+          imagePullPolicy: IfNotPresent

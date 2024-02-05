@@ -1,0 +1,12 @@
+apiVersion: virtnest.io/v1alpha1
+kind: IPPool
+metadata:
+  name: 10-6-v4
+spec:
+  replicas: 5
+  gateway: 10.6.0.1
+  ips:
+    - 10.6.140.0-10.6.153.250
+  excludeIPs:
+    - 10.6.153.11-10.6.153.15
+  subnet: 10.6.0.0/16

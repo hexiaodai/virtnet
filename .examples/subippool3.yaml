@@ -1,0 +1,11 @@
+apiVersion: virtnest.io/v1alpha1
+kind: IPPool
+metadata:
+  name: 11-6-v4-3
+  ownerReferences:
+    - apiVersion: virtnest.io/v1alpha1
+      blockOwnerDeletion: true
+      controller: true
+      kind: IPPool
+      name: 10-6-v4
+      uid: fce78199-18f7-445d-bd3e-344ccb88df99

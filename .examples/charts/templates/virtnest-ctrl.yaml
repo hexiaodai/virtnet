@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: virtnest-ctrl
+  namespace: {{ .Release.Namespace }}
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtnest-ctrl
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: virtnest-ctrl
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: virtnest-ctrl
+  template:
+    metadata:
+      labels:
+        app: virtnest-ctrl
+    spec:
+      hostNetwork: true
+      containers:
+      - name: virtnest-ctrl
+        image: {{ .Values.deployment.ctrl.image.repository }}:{{ .Chart.AppVersion }}
+        imagePullPolicy: IfNotPresent
+        resources:
+        {{- toYaml .Values.deployment.ctrl.resources | nindent 10 }}
+        volumeMounts:
+        - name: virtnest-webhook-secret
+          mountPath: /tmp/virtnet/secret
+          readOnly: true
+      serviceAccountName: virtnest-ctrl
+      volumes:
+      - name: virtnest-webhook-secret
+        secret:
+          secretName: virtnest-webhook-secret
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: virtnest-ctrl
+    service: virtnest-ctrl
+  name: virtnest-ctrl
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: virtnest-ctrl
+  type: ClusterIP
+  ports:
+  - name: webhook-port
+    port: 8081
+    protocol: TCP
+    targetPort: 8081

@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: virtnet-agent
+  namespace: {{ .Release.Namespace }}
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: virtnet-agent
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: virtnet-agent
+spec:
+  selector:
+    matchLabels:
+      app: virtnet-agent
+  template:
+    metadata:
+      labels:
+        app: virtnet-agent
+    spec:
+      hostNetwork: true
+      initContainers:
+      - name: install-plugins
+        image: {{ .Values.deployment.plugins.image.repository }}:{{ .Chart.AppVersion }}
+        command:
+          - /bin/sh
+          - entrypoint.sh
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: cni-bin-path
+          mountPath: /host/opt/cni/bin
+      containers:
+      - name: virtnet-agent
+        env:
+        - name: LOG_LEVEL
+          value: debug
+        image: {{ .Values.deployment.agent.image.repository }}:{{ .Chart.AppVersion }}
+        imagePullPolicy: IfNotPresent
+        resources:
+        {{- toYaml .Values.deployment.agent.resources | nindent 10 }}
+        volumeMounts:
+        - name: ipam-unix-socket-dir
+          mountPath: {{ dir "/var/run/virtnet/virtnet.sock" }}
+      serviceAccountName: virtnet-agent
+      volumes:
+      - name: cni-bin-path
+        hostPath:
+          path: /opt/cni/bin
+          type: DirectoryOrCreate
+      - name: ipam-unix-socket-dir
+        hostPath:
+          path: {{ dir "/var/run/virtnet/virtnet.sock" }}
+          type: DirectoryOrCreate

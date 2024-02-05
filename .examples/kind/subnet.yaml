@@ -1,0 +1,10 @@
+apiVersion: virtnet.io/v1alpha1
+kind: Subnet
+metadata:
+  name: subnet
+spec:
+  replicas: 3
+  gateway: 172.18.0.1
+  ips:
+    - 172.18.10.0-172.18.10.255
+  subnet: 172.18.0.0/16

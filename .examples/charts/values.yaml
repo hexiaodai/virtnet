@@ -1,0 +1,30 @@
+deployment:
+  agent:
+    image:
+      repository: hejianmin/virtnest-agent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+  ctrl:
+    image:
+      repository: hejianmin/virtnest-ctrl
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+  plugins:
+    image:
+      repository: hejianmin/virtnest-plugins
+  replicas: 1
+
+tls:
+  caExpiration: 73000
+  extraIpAddresses: [127.0.0.1]
+  extraDnsNames: []

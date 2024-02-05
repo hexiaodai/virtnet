@@ -1,0 +1,32 @@
+deployment:
+  agent:
+    image:
+      repository: hejianmin/virtnet-agent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+  ctrl:
+    image:
+      repository: hejianmin/virtnet-ctrl
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+  plugins:
+    image:
+      repository: hejianmin/virtnet-plugins
+
+global:
+  ipamUnixSocketPath: /var/run/virtnet/virtnet.sock
+
+tls:
+  caExpiration: 73000
+  extraIpAddresses: [127.0.0.1]
+  extraDnsNames: []

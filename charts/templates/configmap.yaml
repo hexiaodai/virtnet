@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: virtnet-conf
+  namespace: {{ .Release.Namespace }}
+data:
+  conf.yml: |
+    ipamUnixSocketPath: {{ .Values.global.ipamUnixSocketPath }}

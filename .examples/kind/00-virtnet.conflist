@@ -1,0 +1,18 @@
+{
+  "cniVersion": "0.3.1",
+  "name": "macvlan",
+  "plugins": [
+    {
+      "type": "macvlan",
+      "master": "eth0",
+      "mode": "bridge",
+      "ipam": {
+        "type": "virtnet-ipam",
+        "default_subnet": "subnet"
+      }
+    },
+    {
+      "type": "virtnet-coordinator"
+    }
+  ]
+}

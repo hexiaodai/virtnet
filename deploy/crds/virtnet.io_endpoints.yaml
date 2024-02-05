@@ -1,0 +1,117 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.10.0
+  creationTimestamp: null
+  name: endpoints.virtnet.io
+spec:
+  group: virtnet.io
+  names:
+    categories:
+    - virtnet
+    kind: Endpoint
+    listKind: EndpointList
+    plural: endpoints
+    shortNames:
+    - endpoint
+    singular: endpoint
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: interface
+      jsonPath: .status.current.ips[0].interface
+      name: INTERFACE
+      type: string
+    - description: ipv4Pool
+      jsonPath: .status.current.ips[0].ipv4Pool
+      name: IPV4POOL
+      type: string
+    - description: ipv4
+      jsonPath: .status.current.ips[0].ipv4
+      name: IPV4
+      type: string
+    - description: ownerControllerType
+      jsonPath: .status.ownerControllerType
+      name: OWNER-KIND
+      type: string
+    - description: ownerControllerName
+      jsonPath: .status.ownerControllerName
+      name: OWNER-NAME
+      type: string
+    - description: node
+      jsonPath: .status.current.node
+      name: NODE
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Endpoint is the Schema for the Endpoint API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          status:
+            description: EndpointStatus defines the desired state of Endpoint.
+            properties:
+              current:
+                properties:
+                  ips:
+                    items:
+                      properties:
+                        interface:
+                          type: string
+                        ipv4:
+                          type: string
+                        ipv4Gateway:
+                          type: string
+                        ipv4Pool:
+                          type: string
+                        routes:
+                          items:
+                            properties:
+                              dst:
+                                type: string
+                              gw:
+                                type: string
+                            required:
+                            - dst
+                            - gw
+                            type: object
+                          type: array
+                      required:
+                      - interface
+                      type: object
+                    type: array
+                  node:
+                    type: string
+                  uid:
+                    type: string
+                required:
+                - ips
+                - node
+                - uid
+                type: object
+              ownerControllerName:
+                type: string
+              ownerControllerType:
+                type: string
+            required:
+            - current
+            - ownerControllerName
+            - ownerControllerType
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources: {}
