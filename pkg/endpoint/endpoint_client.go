@@ -31,8 +31,8 @@ func NewEndpointClient(client client.Client, cache cache.Cache) *EndpointClient 
 	}
 }
 
-func (ec *EndpointClient) CreateEndpoint(ctx context.Context, request *pb.AllocateRequest, reply *pb.AllocateReply, pod *corev1.Pod, ipAllocationDetails []v1alpha1.IPAllocationDetail, podTopCtrlRef *metav1.OwnerReference) error {
-	return ec.client.Create(ctx, generateEndpoint(request, reply, pod, ipAllocationDetails, podTopCtrlRef))
+func (ec *EndpointClient) CreateEndpoint(ctx context.Context, request *pb.AllocateRequest, reply *pb.AllocateReply, pod *corev1.Pod, ipAllocationDetails []v1alpha1.IPAllocationDetail, endpointOwnerRef, endpointStatusOwnerRef, podTopCtrlRef *metav1.OwnerReference) error {
+	return ec.client.Create(ctx, generateEndpoint(request, reply, pod, ipAllocationDetails, endpointOwnerRef, endpointStatusOwnerRef, podTopCtrlRef))
 }
 
 func (ec *EndpointClient) GetEndpointFromCache(ctx context.Context, podName, podNamespace string) (*v1alpha1.Endpoint, error) {
@@ -43,7 +43,7 @@ func (ec *EndpointClient) GetEndpointFromCache(ctx context.Context, podName, pod
 	return &endpoint, nil
 }
 
-func generateEndpoint(request *pb.AllocateRequest, reply *pb.AllocateReply, pod *corev1.Pod, ipAllocationDetails []v1alpha1.IPAllocationDetail, podTopCtrlRef *metav1.OwnerReference) *v1alpha1.Endpoint {
+func generateEndpoint(request *pb.AllocateRequest, reply *pb.AllocateReply, pod *corev1.Pod, ipAllocationDetails []v1alpha1.IPAllocationDetail, endpointOwnerRef, endpointStatusOwnerRef, podTopCtrlRef *metav1.OwnerReference) *v1alpha1.Endpoint {
 	endpoint := v1alpha1.Endpoint{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      pod.Name,
@@ -58,18 +58,10 @@ func generateEndpoint(request *pb.AllocateRequest, reply *pb.AllocateReply, pod 
 		},
 	}
 
-	var ownerRef metav1.OwnerReference
-	// FIXME: topController
-	if len(pod.ObjectMeta.OwnerReferences) > 0 {
-		ownerRef = pod.ObjectMeta.OwnerReferences[0]
-		endpoint.Status.OwnerControllerType = ownerRef.Kind
-		endpoint.Status.OwnerControllerName = ownerRef.Name
-	} else {
-		endpoint.Status.OwnerControllerType = pod.Kind
-		endpoint.Status.OwnerControllerName = pod.Name
-	}
+	endpoint.Status.OwnerControllerType = endpointStatusOwnerRef.Kind
+	endpoint.Status.OwnerControllerName = endpointStatusOwnerRef.Name
 
-	endpoint.SetOwnerReferences([]metav1.OwnerReference{*podTopCtrlRef})
+	endpoint.SetOwnerReferences([]metav1.OwnerReference{*endpointOwnerRef})
 	controllerutil.AddFinalizer(&endpoint, v1alpha1.IPPoolFinalizer)
 	return &endpoint
 }

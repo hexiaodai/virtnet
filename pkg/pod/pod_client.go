@@ -103,7 +103,7 @@ func (client *PodClient) GetServiceClusterIPRange(ctx context.Context) (*net.IPN
 	return nil, fmt.Errorf("'--service-cluster-ip-range' not found in pod %v/%v, container kube-apiserver", kubeAPIServerPod.Namespace, kubeAPIServerPod.Name)
 }
 
-func (client *PodClient) GetTopOwnerRef(ctx context.Context, pod *corev1.Pod) (*metav1.OwnerReference, error) {
+func (client *PodClient) GetEndpointOwnerAndEndpointStatusOwnerAndTopOwnerRef(ctx context.Context, pod *corev1.Pod) (*metav1.OwnerReference, *metav1.OwnerReference, *metav1.OwnerReference, error) {
 	defaultOwnerRef := func(typeMeta metav1.TypeMeta, objectMeta metav1.ObjectMeta) *metav1.OwnerReference {
 		return &metav1.OwnerReference{
 			APIVersion:         typeMeta.APIVersion,
@@ -116,7 +116,8 @@ func (client *PodClient) GetTopOwnerRef(ctx context.Context, pod *corev1.Pod) (*
 
 	if len(pod.ObjectMeta.OwnerReferences) == 0 {
 		logger.Debugf("pod %v/%v has no owner", pod.Namespace, pod.Name)
-		return defaultOwnerRef(pod.TypeMeta, pod.ObjectMeta), nil
+		ownerRef := defaultOwnerRef(pod.TypeMeta, pod.ObjectMeta)
+		return ownerRef, ownerRef, ownerRef, nil
 	}
 
 	podOwnerRef := pod.ObjectMeta.OwnerReferences[0]
@@ -124,27 +125,31 @@ func (client *PodClient) GetTopOwnerRef(ctx context.Context, pod *corev1.Pod) (*
 	case "ReplicaSet":
 		rs := appsv1.ReplicaSet{}
 		if err := client.clientReader.Get(ctx, apitypes.NamespacedName{Namespace: pod.Namespace, Name: podOwnerRef.Name}, &rs); err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
 		if len(rs.OwnerReferences) == 0 {
 			logger.Debugf("replicaset %v/%v has no owner", rs.Namespace, rs.Name)
-			return defaultOwnerRef(rs.TypeMeta, rs.ObjectMeta), nil
+			ownerRef := defaultOwnerRef(rs.TypeMeta, rs.ObjectMeta)
+			return ownerRef, &podOwnerRef, ownerRef, nil
 		}
-		return &rs.ObjectMeta.OwnerReferences[0], nil
+		return defaultOwnerRef(pod.TypeMeta, pod.ObjectMeta), &podOwnerRef, &rs.ObjectMeta.OwnerReferences[0], nil
 	case "DaemonSet", "StatefulSet":
-		return &pod.ObjectMeta.OwnerReferences[0], nil
+		return &podOwnerRef, &podOwnerRef, &podOwnerRef, nil
 	case "VirtualMachineInstance":
 		vmi := virtv1.VirtualMachineInstance{}
 		if err := client.clientReader.Get(ctx, apitypes.NamespacedName{Namespace: pod.Namespace, Name: podOwnerRef.Name}, &vmi); err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
 		if len(vmi.OwnerReferences) == 0 {
 			logger.Debug("virtualmachineinstance %v/%v has no owner", vmi.Namespace, vmi.Name)
-			return defaultOwnerRef(vmi.TypeMeta, vmi.ObjectMeta), nil
+			ownerRef := defaultOwnerRef(vmi.TypeMeta, vmi.ObjectMeta)
+			return ownerRef, &podOwnerRef, ownerRef, nil
 		}
-		return &vmi.ObjectMeta.OwnerReferences[0], nil
+		ownerRef := &vmi.ObjectMeta.OwnerReferences[0]
+		return ownerRef, &podOwnerRef, ownerRef, nil
 	}
 
 	logger.Debugf("unable to determine owner of pod %v/%v", pod.Namespace, pod.Name)
-	return defaultOwnerRef(pod.TypeMeta, pod.ObjectMeta), nil
+	ownerRef := defaultOwnerRef(pod.TypeMeta, pod.ObjectMeta)
+	return ownerRef, &podOwnerRef, ownerRef, nil
 }

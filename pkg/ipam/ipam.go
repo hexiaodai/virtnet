@@ -116,12 +116,12 @@ func (i *ipam) Allocate(ctx context.Context, request *pb.AllocateRequest) (*pb.A
 		Version: pb.EnumIPVersion_IPv4,
 	})
 
-	podTopOwnerRef, err := i.podClient.GetTopOwnerRef(ctx, pod)
+	endpointOwnerRef, endpointStatusOwnerRef, podTopOwnerRef, err := i.podClient.GetEndpointOwnerAndEndpointStatusOwnerAndTopOwnerRef(ctx, pod)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to get pod top owner ref: %v", err))
 	}
 
-	if err := i.endpointClient.CreateEndpoint(ctx, request, reply, pod, ipAllocationDetails, podTopOwnerRef); err != nil {
+	if err := i.endpointClient.CreateEndpoint(ctx, request, reply, pod, ipAllocationDetails, endpointOwnerRef, endpointStatusOwnerRef, podTopOwnerRef); err != nil {
 		logger.Errorw("endpointClient.CreateEndpoint()", "Error", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to create endpoint: %v", err))
 	}

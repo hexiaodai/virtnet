@@ -12,6 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	uruntime "k8s.io/apimachinery/pkg/util/runtime"
+	virtv1 "kubevirt.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 )
@@ -22,6 +23,7 @@ func init() {
 	uruntime.Must(v1alpha1.AddToScheme(scheme))
 	uruntime.Must(corev1.AddToScheme(scheme))
 	uruntime.Must(appsv1.AddToScheme(scheme))
+	uruntime.Must(virtv1.AddToScheme(scheme))
 }
 
 type CRDManager struct {
